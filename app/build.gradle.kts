@@ -55,6 +55,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
     
     // Animaciones y efectos visuales
@@ -63,6 +64,10 @@ dependencies {
     
     // CircleImageView para imágenes de perfil circulares
     implementation("de.hdodenhof:circleimageview:3.1.0")
+    
+    // Glide para carga y caché de imágenes
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     
     // Testing
     testImplementation(libs.junit)

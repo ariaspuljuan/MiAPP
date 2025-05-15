@@ -14,6 +14,7 @@ public class User {
     private UserProfile profile;
     private Map<String, SkillToTeach> skillsToTeach;
     private Map<String, SkillToLearn> skillsToLearn;
+    private boolean favorite; // Campo para marcar si el usuario es favorito (no se guarda en Firebase)
 
     // Constructor vacío requerido para Firebase
     public User() {
@@ -57,6 +58,14 @@ public class User {
 
     public void setSkillsToLearn(Map<String, SkillToLearn> skillsToLearn) {
         this.skillsToLearn = skillsToLearn;
+    }
+    
+    public boolean isFavorite() {
+        return favorite;
+    }
+    
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 
     /**
@@ -198,6 +207,8 @@ public class User {
     public static class SkillToLearn {
         private String title;
         private int priority; // 1-3
+        private String category;
+        private String description;
 
         public SkillToLearn() {
         }
@@ -205,6 +216,15 @@ public class User {
         public SkillToLearn(String title, int priority) {
             this.title = title;
             this.priority = priority;
+            this.category = "";
+            this.description = "";
+        }
+        
+        public SkillToLearn(String title, int priority, String category, String description) {
+            this.title = title;
+            this.priority = priority;
+            this.category = category;
+            this.description = description;
         }
 
         public String getTitle() {
@@ -222,11 +242,39 @@ public class User {
         public void setPriority(int priority) {
             this.priority = priority;
         }
+        
+        public String getCategory() {
+            return category;
+        }
+
+        public void setCategory(String category) {
+            this.category = category;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+        
+        /**
+         * Método para añadir un usuario a la lista de usuarios que quieren aprender esta habilidad.
+         * Este método se utiliza para mantener compatibilidad con código existente.
+         * @param user Usuario a añadir
+         */
+        public void add(User user) {
+            // Este método es un stub para mantener compatibilidad con código existente
+            // La lógica real de añadir usuarios a una habilidad se maneja en el repositorio
+        }
 
         public Map<String, Object> toMap() {
             HashMap<String, Object> result = new HashMap<>();
             result.put("title", title);
             result.put("priority", priority);
+            result.put("category", category);
+            result.put("description", description);
             return result;
         }
     }

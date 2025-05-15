@@ -134,4 +134,56 @@ public class CategoryRepository {
         
         return deleteResult;
     }
+    
+    /**
+     * Busca categorías por nombre.
+     * @param query Texto de búsqueda
+     * @return LiveData con la lista de categorías que coinciden
+     */
+    public MutableLiveData<List<Category>> searchCategories(String query) {
+        MutableLiveData<List<Category>> categoriesLiveData = new MutableLiveData<>();
+        
+        // Si la consulta está vacía, devolver todas las categorías
+        if (query == null || query.trim().isEmpty()) {
+            return getAllCategories();
+        }
+        
+        // Convertir a minúsculas para búsqueda sin distinción entre mayúsculas y minúsculas
+        final String queryLowerCase = query.toLowerCase().trim();
+        
+        categoriesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Category> categories = new ArrayList<>();
+                
+                for (DataSnapshot categorySnapshot : dataSnapshot.getChildren()) {
+                    try {
+                        String name = categorySnapshot.child("name").getValue(String.class);
+                        
+                        // Verificar si el nombre contiene la consulta
+                        if (name != null && name.toLowerCase().contains(queryLowerCase)) {
+                            Category category = new Category();
+                            category.setCategoryId(categorySnapshot.getKey());
+                            category.setName(name);
+                            category.setDescription(categorySnapshot.child("description").getValue(String.class));
+                            category.setIconUrl(categorySnapshot.child("icon_url").getValue(String.class));
+                            
+                            categories.add(category);
+                        }
+                    } catch (Exception e) {
+                        // Ignorar categorías con formato incorrecto
+                    }
+                }
+                
+                categoriesLiveData.setValue(categories);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                categoriesLiveData.setValue(new ArrayList<>());
+            }
+        });
+        
+        return categoriesLiveData;
+    }
 }

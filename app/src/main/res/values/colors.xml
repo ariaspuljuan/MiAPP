@@ -33,4 +33,23 @@
     
     <!-- Colores de efectos -->
     <color name="shimmer_placeholder">#DDDDDD</color> <!-- Gris para efectos de carga -->
+    
+    <!-- Colores para Material Components -->
+    <color name="colorPrimary">@color/primary</color>
+    <color name="colorPrimaryDark">@color/primary_dark</color>
+    <color name="colorPrimaryVariant">@color/primary_dark</color>
+    <color name="colorOnPrimary">@color/white</color>
+    <color name="colorSecondary">@color/accent</color>
+    <color name="colorSecondaryVariant">@color/accent</color>
+    <color name="colorOnSecondary">@color/black</color>
+    <color name="colorError">@color/error</color>
+    <color name="colorOnError">@color/white</color>
+    <color name="colorSurface">@color/surface</color>
+    <color name="colorOnSurface">@color/text_primary</color>
+    <color name="colorBackground">@color/background</color>
+    <color name="colorOnBackground">@color/text_primary</color>
+    
+    <!-- Colores adicionales para componentes específicos -->
+    <color name="chipBackground">#E0E0E0</color>
+    <color name="default_banner">#C5CAE9</color>
 </resources>

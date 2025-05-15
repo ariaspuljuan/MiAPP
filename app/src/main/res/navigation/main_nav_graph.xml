@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/navigation_profile">
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.skillswap.skillswapp.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_navigation_profile_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
+        <action
+            android:id="@+id/action_navigation_profile_to_skillManagementFragment"
+            app:destination="@id/skillManagementFragment" />
+        <action
+            android:id="@+id/action_navigation_profile_to_userDetailFragment"
+            app:destination="@id/userDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_explore"
+        android:name="com.skillswap.skillswapp.ui.explore.ExploreFragment"
+        android:label="@string/title_explore"
+        tools:layout="@layout/fragment_explore">
+        <action
+            android:id="@+id/action_navigation_explore_to_userDetailFragment"
+            app:destination="@id/userDetailFragment" />
+        <action
+            android:id="@+id/action_navigation_explore_to_skillDetailFragment"
+            app:destination="@id/skillDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_contacts"
+        android:name="com.skillswap.skillswapp.ui.contacts.ContactsFragment"
+        android:label="@string/title_contacts"
+        tools:layout="@layout/fragment_contacts">
+        <action
+            android:id="@+id/action_navigation_contacts_to_userDetailFragment"
+            app:destination="@id/userDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileEditFragment"
+        android:name="com.skillswap.skillswapp.ui.profile.ProfileEditFragment"
+        android:label="@string/edit_profile"
+        tools:layout="@layout/fragment_profile_edit">
+        <action
+            android:id="@+id/action_profileEditFragment_to_navigation_profile"
+            app:destination="@id/navigation_profile"
+            app:popUpTo="@id/navigation_profile"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/skillManagementFragment"
+        android:name="com.skillswap.skillswapp.ui.skills.SkillManagementFragment"
+        android:label="@string/skills_management"
+        tools:layout="@layout/fragment_skill_management">
+        <action
+            android:id="@+id/action_skillManagementFragment_to_navigation_profile"
+            app:destination="@id/navigation_profile"
+            app:popUpTo="@id/navigation_profile"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/userDetailFragment"
+        android:name="com.skillswap.skillswapp.ui.user.UserDetailFragment"
+        android:label="@string/user_detail"
+        tools:layout="@layout/fragment_user_detail">
+        <argument
+            android:name="userId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_userDetailFragment_to_skillDetailFragment"
+            app:destination="@id/skillDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/skillDetailFragment"
+        android:name="com.skillswap.skillswapp.ui.skills.SkillDetailFragment"
+        android:label="@string/skill_detail"
+        tools:layout="@layout/fragment_skill_detail">
+        <argument
+            android:name="skillId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_skillDetailFragment_to_userDetailFragment"
+            app:destination="@id/userDetailFragment" />
+    </fragment>
+</navigation>
