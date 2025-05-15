@@ -1,0 +1,65 @@
+<resources>
+    <!-- Nombre de la aplicación -->
+    <string name="app_name">SkillSwap</string>
+    
+    <!-- Textos de onboarding -->
+    <string name="onboarding_title">Bienvenido a SkillSwap</string>
+    <string name="onboarding_subtitle">Intercambia conocimientos, conecta con otros</string>
+    <string name="onboarding_description">Aprende nuevas habilidades enseñando lo que ya sabes. Crea una comunidad de aprendizaje colaborativo.</string>
+    <string name="get_started">Comenzar</string>
+    <string name="already_have_account">¿Ya tienes una cuenta? Inicia sesión</string>
+    
+    <!-- Textos de autenticación -->
+    <string name="login">Iniciar sesión</string>
+    <string name="register">Registrarse</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="name">Nombre completo</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="reset_password">Restablecer contraseña</string>
+    <string name="remember_me">Recordar sesión</string>
+    <string name="create_account">Crear cuenta</string>
+    <string name="dont_have_account">¿No tienes una cuenta? Regístrate</string>
+    <string name="terms_and_conditions">Acepto los términos y condiciones</string>
+    <string name="send_reset_link">Enviar enlace de recuperación</string>
+    <string name="back_to_login">Volver a inicio de sesión</string>
+    
+    <!-- Textos de validación -->
+    <string name="error_invalid_email">Correo electrónico inválido</string>
+    <string name="error_invalid_password">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="error_passwords_dont_match">Las contraseñas no coinciden</string>
+    <string name="error_invalid_name">Por favor, ingresa tu nombre completo</string>
+    <string name="error_terms_not_accepted">Debes aceptar los términos y condiciones</string>
+    
+    <!-- Textos de perfil -->
+    <string name="profile">Perfil</string>
+    <string name="edit_profile">Editar perfil</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="bio">Biografía</string>
+    <string name="skills_to_teach">Puedo enseñar</string>
+    <string name="skills_to_learn">Quiero aprender</string>
+    <string name="add_skill">Agregar habilidad</string>
+    <string name="profile_picture">Foto de perfil</string>
+    <string name="change_picture">Cambiar foto</string>
+    
+    <!-- Mensajes de estado -->
+    <string name="loading">Cargando…</string>
+    <string name="success_login">Sesión iniciada correctamente</string>
+    <string name="success_register">Cuenta creada correctamente</string>
+    <string name="success_reset_password">Se ha enviado un enlace a tu correo</string>
+    <string name="success_profile_update">Perfil actualizado correctamente</string>
+    <string name="error_general">Ha ocurrido un error. Intenta nuevamente.</string>
+    <string name="error_login">Error al iniciar sesión. Verifica tus credenciales.</string>
+    <string name="error_register">Error al crear cuenta. Intenta nuevamente.</string>
+    <string name="error_reset_password">Error al enviar el enlace. Verifica tu correo.</string>
+    <string name="error_profile_update">Error al actualizar perfil. Intenta nuevamente.</string>
+    
+    <!-- Navegación -->
+    <string name="home">Inicio</string>
+    <string name="search">Buscar</string>
+    <string name="messages">Mensajes</string>
+    <string name="settings">Configuración</string>
+    <string name="logout">Cerrar sesión</string>
+</resources>
