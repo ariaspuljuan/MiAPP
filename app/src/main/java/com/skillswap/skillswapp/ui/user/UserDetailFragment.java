@@ -55,7 +55,10 @@ public class UserDetailFragment extends Fragment {
         
         // Inicializar ViewModels
         userViewModel = new UserViewModel();
+        userViewModel.initContext(requireContext());
+        
         favoriteViewModel = new FavoriteViewModel();
+        favoriteViewModel.initContext(requireContext());
         
         setupRecyclerView();
         setupListeners();
@@ -86,8 +89,13 @@ public class UserDetailFragment extends Fragment {
             // Por ahora, solo agregamos como contacto reciente
             String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             if (!currentUserId.equals(userId)) {
-                userViewModel.addRecentContact(userId);
-                UiUtils.showSnackbar(binding.getRoot(), getString(R.string.contact_added));
+                userViewModel.addRecentContact(userId).observe(getViewLifecycleOwner(), success -> {
+                    if (success) {
+                        UiUtils.showSnackbar(binding.getRoot(), getString(R.string.contact_added));
+                    } else {
+                        UiUtils.showSnackbar(binding.getRoot(), "Error al añadir contacto reciente");
+                    }
+                });
             }
         });
     }
@@ -140,10 +148,21 @@ public class UserDetailFragment extends Fragment {
         // Actualizar foto de perfil si existe
         String photoUrl = user.getProfile().getPhotoUrl();
         if (photoUrl != null && !photoUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(photoUrl)
-                    .circleCrop()
-                    .into(binding.ivProfileImage);
+            // Primero intentar cargar desde almacenamiento local
+            String localPath = userViewModel.getProfileImagePath(user.getUserId());
+            
+            if (localPath != null) {
+                Glide.with(this)
+                        .load(localPath)
+                        .circleCrop()
+                        .into(binding.ivProfileImage);
+            } else {
+                // Si no hay imagen local, intentar cargar desde URL
+                Glide.with(this)
+                        .load(photoUrl)
+                        .circleCrop()
+                        .into(binding.ivProfileImage);
+            }
         }
         
         // Actualizar habilidades que enseña

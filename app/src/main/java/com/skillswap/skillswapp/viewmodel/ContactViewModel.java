@@ -1,9 +1,11 @@
 package com.skillswap.skillswapp.viewmodel;
 
+import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.skillswap.skillswapp.data.local.LocalStorageManager;
 import com.skillswap.skillswapp.data.model.User;
 import com.skillswap.skillswapp.data.repository.ContactRepository;
 
@@ -16,9 +18,31 @@ public class ContactViewModel extends ViewModel {
 
     private final ContactRepository contactRepository;
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private LocalStorageManager localStorageManager;
+    private Context context;
 
     public ContactViewModel() {
         this.contactRepository = ContactRepository.getInstance();
+    }
+    
+    /**
+     * Inicializa el contexto para acceder al almacenamiento local.
+     * Debe llamarse después de crear el ViewModel.
+     * @param context Contexto de la aplicación
+     */
+    public void initContext(Context context) {
+        this.context = context.getApplicationContext();
+        this.localStorageManager = LocalStorageManager.getInstance(this.context);
+        this.contactRepository.initContext(this.context);
+    }
+    
+    /**
+     * Obtiene el mensaje de error.
+     * @return LiveData con el mensaje de error
+     */
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
     }
 
     /**

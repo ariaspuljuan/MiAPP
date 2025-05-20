@@ -48,7 +48,10 @@ public class RecentContactsFragment extends Fragment implements UserAdapter.OnUs
         try {
             // Inicializar ViewModels
             contactViewModel = new ContactViewModel();
+            contactViewModel.initContext(requireContext());
+            
             favoriteViewModel = new FavoriteViewModel();
+            favoriteViewModel.initContext(requireContext());
             
             setupRecyclerView();
             loadRecentContacts();

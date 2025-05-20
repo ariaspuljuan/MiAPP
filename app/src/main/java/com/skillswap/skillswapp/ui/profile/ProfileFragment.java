@@ -1,5 +1,6 @@
 package com.skillswap.skillswapp.ui.profile;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.skillswap.skillswapp.R;
 import com.skillswap.skillswapp.data.model.User;
@@ -44,11 +47,12 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         
         // Inicializar ViewModels
-        authViewModel = new AuthViewModel();
         userViewModel = new UserViewModel();
+        userViewModel.initContext(requireContext());
+        authViewModel = new AuthViewModel();
         
         // Verificar si el usuario está autenticado
-        FirebaseUser currentUser = authViewModel.getCurrentUser();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             navigateToLogin();
             return;
@@ -104,7 +108,16 @@ public class ProfileFragment extends Fragment {
      * Cierra la sesión del usuario y navega a la pantalla de inicio de sesión.
      */
     private void logout() {
+        // Limpiar datos de sesión
         authViewModel.logout();
+        
+        // Limpiar preferencias compartidas para asegurar que no queden datos de sesión
+        requireActivity().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .apply();
+        
+        // Navegar a la pantalla de login
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigate(R.id.action_mainFragment_to_loginFragment);
     }
@@ -139,8 +152,21 @@ public class ProfileFragment extends Fragment {
         // Actualizar foto de perfil si existe
         String photoUrl = user.getProfile().getPhotoUrl();
         if (photoUrl != null && !photoUrl.isEmpty()) {
-            // Cargar imagen con Glide o Picasso
-            // Glide.with(this).load(photoUrl).into(binding.ivProfileImage);
+            // Primero intentar cargar desde almacenamiento local
+            String localPath = userViewModel.getProfileImagePath(user.getUserId());
+            
+            if (localPath != null) {
+                Glide.with(this)
+                        .load(localPath)
+                        .circleCrop()
+                        .into(binding.ivProfileImage);
+            } else {
+                // Si no hay imagen local, intentar cargar desde URL
+                Glide.with(this)
+                        .load(photoUrl)
+                        .circleCrop()
+                        .into(binding.ivProfileImage);
+            }
         }
         
         // Actualizar habilidades que enseña

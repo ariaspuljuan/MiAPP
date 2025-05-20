@@ -1,5 +1,6 @@
 package com.skillswap.skillswapp.data.repository;
 
+import android.content.Context;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -9,6 +10,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.skillswap.skillswapp.data.local.ImageStorageManager;
 import com.skillswap.skillswapp.data.model.User;
 
 import java.util.ArrayList;
@@ -26,12 +28,25 @@ public class ContactRepository {
     private DatabaseReference usersRef;
     private static ContactRepository instance;
     private UserRepository userRepository;
+    private ImageStorageManager imageStorageManager;
+    private Context context;
 
     private ContactRepository() {
         databaseRef = FirebaseDatabase.getInstance().getReference();
         contactsRef = databaseRef.child("recent_contacts");
         usersRef = databaseRef.child("users");
         userRepository = UserRepository.getInstance();
+    }
+    
+    /**
+     * Inicializa el contexto para acceder al almacenamiento local de imágenes.
+     * Debe llamarse después de crear la instancia del repositorio.
+     * @param context Contexto de la aplicación
+     */
+    public void initContext(Context context) {
+        this.context = context.getApplicationContext();
+        this.imageStorageManager = ImageStorageManager.getInstance(this.context);
+        this.userRepository.initContext(this.context);
     }
 
     public static ContactRepository getInstance() {

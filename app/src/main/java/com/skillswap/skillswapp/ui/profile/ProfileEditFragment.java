@@ -61,6 +61,7 @@ public class ProfileEditFragment extends Fragment {
         
         // Inicializar ViewModel
         userViewModel = new UserViewModel();
+        userViewModel.initContext(requireContext());
         
         // Verificar si el usuario está autenticado
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -119,10 +120,21 @@ public class ProfileEditFragment extends Fragment {
         // Cargar foto de perfil si existe
         String photoUrl = user.getProfile().getPhotoUrl();
         if (photoUrl != null && !photoUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(photoUrl)
-                    .circleCrop()
-                    .into(binding.ivProfileImage);
+            // Primero intentar cargar desde almacenamiento local
+            String localPath = userViewModel.getProfileImagePath(user.getUserId());
+            
+            if (localPath != null) {
+                Glide.with(this)
+                        .load(localPath)
+                        .circleCrop()
+                        .into(binding.ivProfileImage);
+            } else {
+                // Si no hay imagen local, intentar cargar desde URL
+                Glide.with(this)
+                        .load(photoUrl)
+                        .circleCrop()
+                        .into(binding.ivProfileImage);
+            }
         }
     }
 
@@ -168,13 +180,14 @@ public class ProfileEditFragment extends Fragment {
     }
 
     private void uploadProfileImage(String userId) {
-        userViewModel.uploadProfileImage(userId, selectedImageUri).observe(getViewLifecycleOwner(), downloadUrl -> {
+        userViewModel.uploadProfileImage(userId, selectedImageUri).observe(getViewLifecycleOwner(), imagePath -> {
             // Ocultar progreso
             binding.progressBar.setVisibility(View.GONE);
             
-            if (downloadUrl != null && !downloadUrl.isEmpty()) {
+            if (imagePath != null && !imagePath.isEmpty()) {
                 // Actualizar la URL de la foto en el perfil del usuario
-                userViewModel.updateUserField(userId, "profile/photoUrl", downloadUrl).observe(getViewLifecycleOwner(), success -> {
+                // Usamos la ruta local como URL para mantener la compatibilidad
+                userViewModel.updateUserField(userId, "profile/photoUrl", imagePath).observe(getViewLifecycleOwner(), success -> {
                     if (success) {
                         UiUtils.showSnackbar(binding.getRoot(), getString(R.string.profile_updated));
                         navigateBack();

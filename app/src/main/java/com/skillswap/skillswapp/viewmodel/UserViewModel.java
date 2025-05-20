@@ -390,25 +390,65 @@ public class UserViewModel extends ViewModel {
     }
     
     /**
-     * Sube una imagen de perfil a Firebase Storage y devuelve la URL de descarga.
+     * Guarda una imagen de perfil localmente y devuelve la ruta del archivo.
      * @param userId ID del usuario
-     * @param imageUri URI de la imagen a subir
-     * @return LiveData con la URL de descarga de la imagen
+     * @param imageUri URI de la imagen a guardar
+     * @return LiveData con la ruta del archivo de la imagen
      */
     public LiveData<String> uploadProfileImage(String userId, android.net.Uri imageUri) {
+        MutableLiveData<String> result = new MutableLiveData<>();
         isLoading.setValue(true);
         errorMessage.setValue(null);
         
-        MutableLiveData<String> urlLiveData = userRepository.uploadProfileImage(userId, imageUri);
-        
-        // Observar el resultado para actualizar el estado de carga
-        urlLiveData.observeForever(url -> {
-            isLoading.setValue(false);
-            if (url == null || url.isEmpty()) {
-                errorMessage.setValue("Error al subir la imagen de perfil.");
+        try {
+            if (context == null) {
+                result.setValue(null);
+                errorMessage.setValue("Error: Contexto no inicializado. Llama a initContext primero.");
+                isLoading.setValue(false);
+                return result;
             }
-        });
+            
+            // Usar almacenamiento local de imágenes
+            com.skillswap.skillswapp.data.local.ImageStorageManager imageManager = 
+                    com.skillswap.skillswapp.data.local.ImageStorageManager.getInstance(context);
+            
+            String imagePath = imageManager.saveProfileImage(userId, imageUri);
+            
+            if (imagePath != null && !imagePath.isEmpty()) {
+                result.setValue(imagePath);
+            } else {
+                result.setValue(null);
+                errorMessage.setValue("Error al guardar la imagen localmente.");
+            }
+            
+            isLoading.setValue(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setValue(null);
+            errorMessage.setValue("Error al guardar la imagen: " + e.getMessage());
+            isLoading.setValue(false);
+        }
         
-        return urlLiveData;
+        return result;
+    }
+    
+    /**
+     * Obtiene la ruta de la imagen de perfil de un usuario.
+     * @param userId ID del usuario
+     * @return Ruta de la imagen o null si no existe
+     */
+    public String getProfileImagePath(String userId) {
+        if (context == null) {
+            return null;
+        }
+        
+        try {
+            com.skillswap.skillswapp.data.local.ImageStorageManager imageManager = 
+                    com.skillswap.skillswapp.data.local.ImageStorageManager.getInstance(context);
+            return imageManager.getProfileImagePath(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
