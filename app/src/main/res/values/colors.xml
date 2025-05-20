@@ -19,6 +19,7 @@
     <color name="success">#4CAF50</color> <!-- Verde -->
     <color name="info">#2196F3</color> <!-- Azul -->
     <color name="warning">#FFC107</color> <!-- Ámbar -->
+    <color name="background_light">#F5F5F5</color> <!-- Fondo claro para formularios -->
     <color name="error">#F44336</color> <!-- Rojo -->
     
     <!-- Colores de texto -->

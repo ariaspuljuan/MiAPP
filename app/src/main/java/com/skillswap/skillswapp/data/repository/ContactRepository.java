@@ -49,17 +49,41 @@ public class ContactRepository {
     public MutableLiveData<Boolean> addRecentContact(String contactUserId) {
         MutableLiveData<Boolean> addResult = new MutableLiveData<>();
         
-        // Obtener el ID del usuario actual
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        
-        // Crear un mapa con los datos del contacto
-        Map<String, Object> contactData = new HashMap<>();
-        contactData.put("timestamp", new Date().getTime());
-        
-        // Guardar el contacto en la base de datos
-        contactsRef.child(currentUserId).child(contactUserId).setValue(contactData)
-                .addOnSuccessListener(aVoid -> addResult.setValue(true))
-                .addOnFailureListener(e -> addResult.setValue(false));
+        try {
+            // Verificar que el usuario esté autenticado
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                addResult.setValue(false);
+                return addResult;
+            }
+            
+            // Obtener el ID del usuario actual
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            
+            // Crear un mapa con los datos del contacto
+            Map<String, Object> contactData = new HashMap<>();
+            contactData.put("timestamp", new Date().getTime());
+            
+            // Guardar el contacto en la base de datos de contactos recientes
+            contactsRef.child(currentUserId).child(contactUserId).setValue(contactData)
+                    .addOnSuccessListener(aVoid -> {
+                        // También guardar en la colección de usuarios para compatibilidad
+                        FirebaseDatabase.getInstance().getReference()
+                                .child("users")
+                                .child(currentUserId)
+                                .child("recent_contacts")
+                                .child(contactUserId)
+                                .setValue(new Date().getTime())
+                                .addOnSuccessListener(aVoid2 -> addResult.setValue(true))
+                                .addOnFailureListener(e -> addResult.setValue(true)); // Aún consideramos éxito si solo se guardó en contactsRef
+                    })
+                    .addOnFailureListener(e -> {
+                        e.printStackTrace();
+                        addResult.setValue(false);
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+            addResult.setValue(false);
+        }
         
         return addResult;
     }

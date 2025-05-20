@@ -126,6 +126,12 @@
         android:name="com.skillswap.skillswapp.ui.explore.ExploreFragment"
         android:label="ExploreFragment"
         tools:layout="@layout/fragment_explore">
+        <action
+            android:id="@+id/action_navigation_explore_to_skillDetailFragment"
+            app:destination="@id/skillDetailFragment" />
+        <action
+            android:id="@+id/action_navigation_explore_to_userDetailFragment"
+            app:destination="@id/userDetailFragment" />
     </fragment>
 
     <fragment
@@ -145,5 +151,28 @@
             app:destination="@id/navigation_profile"
             app:popUpTo="@id/navigation_profile"
             app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/skillDetailFragment"
+        android:name="com.skillswap.skillswapp.ui.skills.SkillDetailFragment"
+        android:label="@string/skill_detail"
+        tools:layout="@layout/fragment_skill_detail">
+        <argument
+            android:name="skillId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_skillDetailFragment_to_userDetailFragment"
+            app:destination="@id/userDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/userDetailFragment"
+        android:name="com.skillswap.skillswapp.ui.user.UserDetailFragment"
+        android:label="@string/user_detail"
+        tools:layout="@layout/fragment_user_detail">
+        <argument
+            android:name="userId"
+            app:argType="string" />
     </fragment>
 </navigation>

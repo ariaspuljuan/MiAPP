@@ -83,6 +83,12 @@
     <string name="error_removing_favorite">Error al eliminar de favoritos</string>
     <string name="error_user_not_found">Usuario no encontrado</string>
     <string name="error_loading_profile">Error al cargar el perfil</string>
+    
+    <!-- Textos de cierre de sesión -->
+    <string name="logout">Cerrar sesión</string>
+    <string name="logout_confirmation">¿Estás seguro de que deseas cerrar sesión?</string>
+    <string name="logout_yes">Sí, cerrar sesión</string>
+    <string name="logout_no">No, cancelar</string>
     <string name="profile_updated">Perfil actualizado</string>
     <string name="error_updating_profile">Error al actualizar el perfil</string>
     <string name="error_uploading_image">Error al subir la imagen</string>
@@ -110,10 +116,27 @@
     <!-- Navegación -->
     <string name="home">Inicio</string>
     <string name="search">Buscar</string>
+    <string name="search_hint">Buscar habilidades o personas…</string>
     <string name="messages">Mensajes</string>
     <string name="settings">Configuración</string>
-    <string name="logout">Cerrar sesión</string>
+    <!-- El string logout ya está definido en la sección de cierre de sesión -->
     <string name="title_profile">Mi Perfil</string>
     <string name="title_explore">Explorar</string>
     <string name="title_contacts">Contactos</string>
+    
+    <!-- Textos de exploración -->
+    <string name="featured_skills">Habilidades destacadas</string>
+    <string name="advanced_filters">Filtros avanzados</string>
+    <string name="saved_searches">Búsquedas guardadas</string>
+    <string name="apply_filters">Aplicar filtros</string>
+    <string name="any_level">Cualquier nivel</string>
+    <string name="beginner">Principiante</string>
+    <string name="intermediate">Intermedio</string>
+    <string name="advanced">Avanzado</string>
+    <string name="save_search">Guardar búsqueda</string>
+    <string name="search_name">Nombre de la búsqueda</string>
+    <string name="search_saved">Búsqueda guardada correctamente</string>
+    <string name="recent_searches">Búsquedas recientes</string>
+    <string name="hide_filters">Ocultar filtros</string>
+    <string name="show_filters">Mostrar filtros</string>
 </resources>

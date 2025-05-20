@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,25 +31,41 @@ public class ContactsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
-        setupViewPager();
+        try {
+            setupViewPager();
+        } catch (Exception e) {
+            // Manejar cualquier excepción durante la inicialización
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al inicializar la vista de contactos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            e.printStackTrace();
+        }
     }
 
     private void setupViewPager() {
-        // Configurar adaptador para ViewPager
-        ContactsViewPagerAdapter adapter = new ContactsViewPagerAdapter(this);
-        binding.viewPager.setAdapter(adapter);
-        
-        // Conectar TabLayout con ViewPager
-        new TabLayoutMediator(binding.tabLayout, binding.viewPager, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setText("Favoritos");
-                    break;
-                case 1:
-                    tab.setText("Recientes");
-                    break;
+        try {
+            // Configurar adaptador para ViewPager
+            ContactsViewPagerAdapter adapter = new ContactsViewPagerAdapter(this);
+            binding.viewPager.setAdapter(adapter);
+            
+            // Conectar TabLayout con ViewPager
+            new TabLayoutMediator(binding.tabLayout, binding.viewPager, (tab, position) -> {
+                switch (position) {
+                    case 0:
+                        tab.setText("Favoritos");
+                        break;
+                    case 1:
+                        tab.setText("Recientes");
+                        break;
+                }
+            }).attach();
+        } catch (Exception e) {
+            // Manejar cualquier excepción durante la configuración del ViewPager
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al configurar la vista de contactos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        }).attach();
+            e.printStackTrace();
+        }
     }
 
     @Override

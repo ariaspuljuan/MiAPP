@@ -104,6 +104,67 @@ public class SkillViewModel extends ViewModel {
         isLoading.setValue(false);
         return result;
     }
+    
+    /**
+     * Obtiene las habilidades destacadas para mostrar en la pantalla de exploración.
+     * @return LiveData con la lista de habilidades destacadas
+     */
+    public LiveData<List<Skill>> getFeaturedSkills() {
+        isLoading.setValue(true);
+        LiveData<List<Skill>> skills = skillRepository.getFeaturedSkills();
+        isLoading.setValue(false);
+        return skills;
+    }
+    
+    /**
+     * Busca habilidades con filtros avanzados.
+     * @param query Texto de búsqueda
+     * @param categoryId ID de categoría para filtrar
+     * @param level Nivel de habilidad (0: cualquiera, 1: principiante, 2: intermedio, 3: avanzado)
+     * @return LiveData con la lista de habilidades que coinciden
+     */
+    public LiveData<List<Skill>> searchSkillsAdvanced(String query, String categoryId, int level) {
+        isLoading.setValue(true);
+        LiveData<List<Skill>> skills = skillRepository.searchSkillsAdvanced(query, categoryId, level);
+        isLoading.setValue(false);
+        return skills;
+    }
+    
+    /**
+     * Obtiene sugerencias de búsqueda basadas en una consulta parcial.
+     * @param query Consulta parcial
+     * @return LiveData con la lista de sugerencias
+     */
+    public LiveData<List<String>> getSearchSuggestions(String query) {
+        return skillRepository.getSearchSuggestions(query);
+    }
+    
+    /**
+     * Añade una habilidad a favoritos.
+     * @param skillId ID de la habilidad
+     * @return LiveData con el resultado (true si se añadió correctamente)
+     */
+    public LiveData<Boolean> addFavoriteSkill(String skillId) {
+        return skillRepository.addFavoriteSkill(skillId);
+    }
+    
+    /**
+     * Elimina una habilidad de favoritos.
+     * @param skillId ID de la habilidad
+     * @return LiveData con el resultado (true si se eliminó correctamente)
+     */
+    public LiveData<Boolean> removeFavoriteSkill(String skillId) {
+        return skillRepository.removeFavoriteSkill(skillId);
+    }
+    
+    /**
+     * Verifica si una habilidad está en favoritos.
+     * @param skillId ID de la habilidad
+     * @return LiveData con el resultado (true si está en favoritos)
+     */
+    public LiveData<Boolean> isSkillFavorite(String skillId) {
+        return skillRepository.isSkillFavorite(skillId);
+    }
 
     /**
      * Obtiene el estado de carga.

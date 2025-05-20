@@ -99,6 +99,15 @@ public class AuthRepository {
     public boolean isUserLoggedIn() {
         return firebaseAuth.getCurrentUser() != null;
     }
+    
+    /**
+     * Obtiene el ID del usuario actualmente autenticado.
+     * @return ID del usuario o null si no hay usuario autenticado
+     */
+    public String getCurrentUserId() {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        return currentUser != null ? currentUser.getUid() : null;
+    }
 
     /**
      * Obtiene el usuario actual.

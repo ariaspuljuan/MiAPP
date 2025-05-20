@@ -235,8 +235,41 @@ public class FavoriteRepository {
      * @return LiveData con el resultado (true si se agregó correctamente)
      */
     public MutableLiveData<Boolean> addFavorite(String favoriteUserId) {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        return addFavorite(currentUserId, favoriteUserId, "");
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+        
+        try {
+            // Verificar que el usuario esté autenticado
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                result.setValue(false);
+                return result;
+            }
+            
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            
+            // Crear un objeto Favorite con los datos necesarios
+            Favorite favorite = new Favorite(currentUserId, favoriteUserId, "");
+            favorite.setTimestamp(new Date());
+            
+            // Guardar en la base de datos
+            favoritesRef.child(currentUserId).child(favoriteUserId).setValue(favorite.toMap())
+                    .addOnSuccessListener(aVoid -> {
+                        // También guardar en la colección de usuarios para compatibilidad
+                        FirebaseDatabase.getInstance().getReference()
+                                .child("users")
+                                .child(currentUserId)
+                                .child("favorites")
+                                .child(favoriteUserId)
+                                .setValue(true)
+                                .addOnSuccessListener(aVoid2 -> result.setValue(true))
+                                .addOnFailureListener(e -> result.setValue(true)); // Aún consideramos éxito si solo se guardó en favoritesRef
+                    })
+                    .addOnFailureListener(e -> result.setValue(false));
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setValue(false);
+        }
+        
+        return result;
     }
     
     /**
@@ -245,7 +278,36 @@ public class FavoriteRepository {
      * @return LiveData con el resultado (true si se eliminó correctamente)
      */
     public MutableLiveData<Boolean> removeFavorite(String favoriteUserId) {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        return removeFavorite(currentUserId, favoriteUserId);
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+        
+        try {
+            // Verificar que el usuario esté autenticado
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                result.setValue(false);
+                return result;
+            }
+            
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            
+            // Eliminar de la colección de favoritos
+            favoritesRef.child(currentUserId).child(favoriteUserId).removeValue()
+                    .addOnSuccessListener(aVoid -> {
+                        // También eliminar de la colección de usuarios para compatibilidad
+                        FirebaseDatabase.getInstance().getReference()
+                                .child("users")
+                                .child(currentUserId)
+                                .child("favorites")
+                                .child(favoriteUserId)
+                                .removeValue()
+                                .addOnSuccessListener(aVoid2 -> result.setValue(true))
+                                .addOnFailureListener(e -> result.setValue(true)); // Aún consideramos éxito si solo se eliminó de favoritesRef
+                    })
+                    .addOnFailureListener(e -> result.setValue(false));
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setValue(false);
+        }
+        
+        return result;
     }
 }

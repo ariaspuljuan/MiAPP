@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -76,6 +77,36 @@ public class ProfileFragment extends Fragment {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
             navController.navigate(R.id.action_navigation_profile_to_profileEditFragment);
         });
+        
+        // Botón para cerrar sesión
+        binding.btnLogout.setOnClickListener(v -> {
+            showLogoutConfirmationDialog();
+        });
+    }
+    
+    /**
+     * Muestra un diálogo de confirmación para cerrar sesión.
+     */
+    private void showLogoutConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(R.string.logout);
+        builder.setMessage(R.string.logout_confirmation);
+        builder.setPositiveButton(R.string.logout_yes, (dialog, which) -> {
+            logout();
+        });
+        builder.setNegativeButton(R.string.logout_no, (dialog, which) -> {
+            dialog.dismiss();
+        });
+        builder.create().show();
+    }
+    
+    /**
+     * Cierra la sesión del usuario y navega a la pantalla de inicio de sesión.
+     */
+    private void logout() {
+        authViewModel.logout();
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(R.id.action_mainFragment_to_loginFragment);
     }
 
     private void loadUserData(String userId) {

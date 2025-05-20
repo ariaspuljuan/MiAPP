@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,11 +43,22 @@ public class FavoritesFragment extends Fragment implements UserAdapter.OnUserCli
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
-        // Inicializar ViewModel
-        favoriteViewModel = new FavoriteViewModel();
-        
-        setupRecyclerView();
-        loadFavorites();
+        try {
+            // Inicializar ViewModel
+            favoriteViewModel = new FavoriteViewModel();
+            // Inicializar el contexto para el almacenamiento local
+            favoriteViewModel.initContext(requireContext());
+            
+            setupRecyclerView();
+            loadFavorites();
+        } catch (Exception e) {
+            // Manejar cualquier excepción durante la inicialización
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al cargar favoritos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            e.printStackTrace();
+            showEmptyState(true);
+        }
     }
 
     private void setupRecyclerView() {
@@ -60,19 +72,46 @@ public class FavoritesFragment extends Fragment implements UserAdapter.OnUserCli
     private void loadFavorites() {
         showLoading(true);
         
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        favoriteViewModel.getFavoriteUsers(currentUserId).observe(getViewLifecycleOwner(), users -> {
-            showLoading(false);
-            
-            if (users != null && !users.isEmpty()) {
-                favoriteUsers.clear();
-                favoriteUsers.addAll(users);
-                userAdapter.notifyDataSetChanged();
-                showEmptyState(false);
-            } else {
+        try {
+            // Verificar si el usuario está autenticado
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
                 showEmptyState(true);
+                showLoading(false);
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Debes iniciar sesión para ver tus favoritos", Toast.LENGTH_SHORT).show();
+                }
+                return;
             }
-        });
+            
+            // Usar el almacenamiento local para cargar favoritos
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            favoriteViewModel.getFavoriteUsers(currentUserId).observe(getViewLifecycleOwner(), users -> {
+                showLoading(false);
+                
+                if (users != null && !users.isEmpty()) {
+                    favoriteUsers.clear();
+                    favoriteUsers.addAll(users);
+                    userAdapter.notifyDataSetChanged();
+                    showEmptyState(false);
+                } else {
+                    showEmptyState(true);
+                }
+            });
+            
+            // Observar mensajes de error
+            favoriteViewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMsg -> {
+                if (errorMsg != null && !errorMsg.isEmpty() && getContext() != null) {
+                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            showLoading(false);
+            showEmptyState(true);
+            e.printStackTrace();
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al cargar favoritos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void showLoading(boolean show) {
@@ -96,29 +135,29 @@ public class FavoritesFragment extends Fragment implements UserAdapter.OnUserCli
 
     @Override
     public void onFavoriteClick(User user, boolean isFavorite) {
-        // Manejar click en favorito
-        if (!isFavorite) {
-            // Eliminar de favoritos
-            favoriteViewModel.removeFavorite(user.getUserId());
-            
-            // Eliminar de la lista local
-            int position = -1;
-            for (int i = 0; i < favoriteUsers.size(); i++) {
-                if (favoriteUsers.get(i).getUserId().equals(user.getUserId())) {
-                    position = i;
-                    break;
-                }
+        try {
+            if (isFavorite) {
+                // Ya es favorito, eliminarlo
+                favoriteViewModel.removeFavorite(user.getUserId()).observe(getViewLifecycleOwner(), success -> {
+                    if (success) {
+                        user.setFavorite(false);
+                        Toast.makeText(getContext(), "Usuario eliminado de favoritos", Toast.LENGTH_SHORT).show();
+                        
+                        // Eliminar de la lista
+                        favoriteUsers.remove(user);
+                        userAdapter.notifyDataSetChanged();
+                        
+                        if (favoriteUsers.isEmpty()) {
+                            showEmptyState(true);
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "No se pudo eliminar de favoritos", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-            
-            if (position != -1) {
-                favoriteUsers.remove(position);
-                userAdapter.notifyItemRemoved(position);
-                
-                // Mostrar estado vacío si no hay más favoritos
-                if (favoriteUsers.isEmpty()) {
-                    showEmptyState(true);
-                }
-            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 

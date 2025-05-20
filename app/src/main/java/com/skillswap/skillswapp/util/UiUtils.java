@@ -6,8 +6,11 @@ import android.content.Context;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
@@ -43,6 +46,18 @@ public class UiUtils {
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
     }
 
+    /**
+     * Oculta el teclado virtual.
+     * @param activity La actividad actual
+     */
+    public static void hideKeyboard(FragmentActivity activity) {
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+    
     /**
      * Muestra un Snackbar con un mensaje y una acción.
      * @param view La vista donde mostrar el Snackbar

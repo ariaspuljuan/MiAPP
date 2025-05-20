@@ -4,10 +4,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,11 +44,19 @@ public class ExploreSkillsFragment extends Fragment implements SkillListAdapter.
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
-        // Inicializar ViewModel
-        skillViewModel = new SkillViewModel();
-        
-        setupRecyclerView();
-        loadSkills();
+        try {
+            // Inicializar ViewModel
+            skillViewModel = new SkillViewModel();
+            
+            setupRecyclerView();
+            loadSkills();
+        } catch (Exception e) {
+            // Manejar cualquier excepción durante la inicialización
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al inicializar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            e.printStackTrace();
+        }
     }
 
     private void setupRecyclerView() {
@@ -103,9 +113,32 @@ public class ExploreSkillsFragment extends Fragment implements SkillListAdapter.
      * @param categoryId ID de categoría para filtrar
      */
     public void search(String query, String categoryId) {
+        // Llamar al método de búsqueda avanzada con nivel 0 (cualquier nivel)
+        search(query, categoryId, 0);
+    }
+    
+    /**
+     * Realiza una búsqueda avanzada de habilidades con filtrado por nivel.
+     * @param query Texto de búsqueda
+     * @param categoryId ID de categoría para filtrar
+     * @param level Nivel de habilidad (0: cualquiera, 1: principiante, 2: intermedio, 3: avanzado)
+     */
+    public void search(String query, String categoryId, int level) {
         showLoading(true);
         
-        skillViewModel.searchSkills(query, categoryId).observe(getViewLifecycleOwner(), skills -> {
+        // Mostrar animación de carga
+        binding.recyclerView.setVisibility(View.INVISIBLE);
+        binding.progressBar.setVisibility(View.VISIBLE);
+        
+        // Usar el método de búsqueda avanzada si se especifica un nivel, o el método estándar si no
+        LiveData<List<Skill>> searchResult;
+        if (level > 0) {
+            searchResult = skillViewModel.searchSkillsAdvanced(query, categoryId, level);
+        } else {
+            searchResult = skillViewModel.searchSkills(query, categoryId);
+        }
+        
+        searchResult.observe(getViewLifecycleOwner(), skills -> {
             showLoading(false);
             
             if (skills != null && !skills.isEmpty()) {
@@ -113,6 +146,10 @@ public class ExploreSkillsFragment extends Fragment implements SkillListAdapter.
                 skillList.addAll(skills);
                 skillAdapter.notifyDataSetChanged();
                 showEmptyState(false);
+                
+                // Mostrar animación de aparición de resultados
+                binding.recyclerView.setVisibility(View.VISIBLE);
+                binding.recyclerView.scheduleLayoutAnimation();
             } else {
                 skillList.clear();
                 skillAdapter.notifyDataSetChanged();

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,12 +45,21 @@ public class RecentContactsFragment extends Fragment implements UserAdapter.OnUs
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
-        // Inicializar ViewModels
-        contactViewModel = new ContactViewModel();
-        favoriteViewModel = new FavoriteViewModel();
-        
-        setupRecyclerView();
-        loadRecentContacts();
+        try {
+            // Inicializar ViewModels
+            contactViewModel = new ContactViewModel();
+            favoriteViewModel = new FavoriteViewModel();
+            
+            setupRecyclerView();
+            loadRecentContacts();
+        } catch (Exception e) {
+            // Manejar cualquier excepción durante la inicialización
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al cargar contactos recientes: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            e.printStackTrace();
+            showEmptyState(true);
+        }
     }
 
     private void setupRecyclerView() {
@@ -63,23 +73,42 @@ public class RecentContactsFragment extends Fragment implements UserAdapter.OnUs
     private void loadRecentContacts() {
         showLoading(true);
         
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        contactViewModel.getRecentContacts(currentUserId).observe(getViewLifecycleOwner(), users -> {
-            showLoading(false);
-            
-            if (users != null && !users.isEmpty()) {
-                recentContacts.clear();
-                recentContacts.addAll(users);
-                
-                // Verificar cuáles son favoritos
-                checkFavorites();
-                
-                userAdapter.notifyDataSetChanged();
-                showEmptyState(false);
-            } else {
+        try {
+            // Verificar si el usuario está autenticado
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
                 showEmptyState(true);
+                showLoading(false);
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Debes iniciar sesión para ver tus contactos recientes", Toast.LENGTH_SHORT).show();
+                }
+                return;
             }
-        });
+            
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            contactViewModel.getRecentContacts(currentUserId).observe(getViewLifecycleOwner(), users -> {
+                showLoading(false);
+                
+                if (users != null && !users.isEmpty()) {
+                    recentContacts.clear();
+                    recentContacts.addAll(users);
+                    
+                    // Verificar cuáles son favoritos
+                    checkFavorites();
+                    
+                    userAdapter.notifyDataSetChanged();
+                    showEmptyState(false);
+                } else {
+                    showEmptyState(true);
+                }
+            });
+        } catch (Exception e) {
+            showLoading(false);
+            showEmptyState(true);
+            e.printStackTrace();
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al cargar contactos recientes: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void checkFavorites() {

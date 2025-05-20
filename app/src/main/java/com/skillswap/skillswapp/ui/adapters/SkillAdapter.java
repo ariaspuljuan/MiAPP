@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.skillswap.skillswapp.R;
+import com.skillswap.skillswapp.data.model.Skill;
 import com.skillswap.skillswapp.data.model.User;
 
 import java.util.ArrayList;
@@ -32,6 +33,30 @@ public class SkillAdapter extends RecyclerView.Adapter<SkillAdapter.SkillViewHol
     public SkillAdapter(boolean isTeachSkill) {
         this.skills = new ArrayList<>();
         this.isTeachSkill = isTeachSkill;
+    }
+    
+    /**
+     * Constructor del adaptador con lista de habilidades.
+     * @param skills Lista de habilidades a mostrar
+     * @param isTeachSkill true si son habilidades para enseñar, false si son para aprender
+     */
+    public SkillAdapter(List<Skill> skills, boolean isTeachSkill) {
+        this.skills = new ArrayList<>();
+        this.isTeachSkill = isTeachSkill;
+        
+        // Convertir las habilidades al formato interno
+        if (skills != null) {
+            for (Skill skill : skills) {
+                this.skills.add(new SkillItem(
+                    skill.getSkillId(),
+                    skill.getTitle(),
+                    skill.getCategory(),
+                    skill.getDescription(),
+                    skill.getLevel(),
+                    0 // Prioridad por defecto
+                ));
+            }
+        }
     }
 
     /**

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,11 +43,21 @@ public class ExploreUsersFragment extends Fragment implements UserAdapter.OnUser
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
-        // Inicializar ViewModel
-        userViewModel = new UserViewModel();
-        
-        setupRecyclerView();
-        loadUsers();
+        try {
+            // Inicializar ViewModel
+            userViewModel = new UserViewModel();
+            // Inicializar el contexto para el almacenamiento local
+            userViewModel.initContext(requireContext());
+            
+            setupRecyclerView();
+            loadUsers();
+        } catch (Exception e) {
+            // Manejar cualquier excepción durante la inicialización
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al inicializar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            e.printStackTrace();
+        }
     }
 
     private void setupRecyclerView() {
@@ -101,11 +112,16 @@ public class ExploreUsersFragment extends Fragment implements UserAdapter.OnUser
      * Realiza una búsqueda de usuarios.
      * @param query Texto de búsqueda
      * @param categoryId ID de categoría para filtrar
+     * @param level Nivel de habilidad (0: cualquiera, 1: principiante, 2: intermedio, 3: avanzado)
      */
-    public void search(String query, String categoryId) {
+    public void search(String query, String categoryId, int level) {
         showLoading(true);
         
-        userViewModel.searchUsers(query, categoryId).observe(getViewLifecycleOwner(), users -> {
+        // Mostrar animación de carga
+        binding.recyclerView.setVisibility(View.INVISIBLE);
+        binding.progressBar.setVisibility(View.VISIBLE);
+        
+        userViewModel.searchUsersAdvanced(query, categoryId, level).observe(getViewLifecycleOwner(), users -> {
             showLoading(false);
             
             if (users != null && !users.isEmpty()) {
@@ -113,12 +129,23 @@ public class ExploreUsersFragment extends Fragment implements UserAdapter.OnUser
                 userList.addAll(users);
                 userAdapter.notifyDataSetChanged();
                 showEmptyState(false);
+                
+                // Mostrar animación de aparición de resultados
+                binding.recyclerView.setVisibility(View.VISIBLE);
+                binding.recyclerView.scheduleLayoutAnimation();
             } else {
                 userList.clear();
                 userAdapter.notifyDataSetChanged();
                 showEmptyState(true);
             }
         });
+    }
+    
+    /**
+     * Sobrecarga del método search para mantener compatibilidad con código existente
+     */
+    public void search(String query, String categoryId) {
+        search(query, categoryId, 0); // 0 = cualquier nivel
     }
 
     private void showLoading(boolean show) {
@@ -131,22 +158,58 @@ public class ExploreUsersFragment extends Fragment implements UserAdapter.OnUser
 
     @Override
     public void onUserClick(User user) {
-        // Navegar al detalle del usuario
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        
-        Bundle args = new Bundle();
-        args.putString("userId", user.getUserId());
-        
-        navController.navigate(R.id.action_navigation_explore_to_userDetailFragment, args);
+        try {
+            // Añadir a contactos recientes
+            userViewModel.addRecentContact(user.getUserId()).observe(getViewLifecycleOwner(), success -> {
+                if (!success) {
+                    Toast.makeText(getContext(), "No se pudo añadir a contactos recientes", Toast.LENGTH_SHORT).show();
+                }
+            });
+            
+            // Navegar al detalle del usuario
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+            
+            Bundle args = new Bundle();
+            args.putString("userId", user.getUserId());
+            
+            navController.navigate(R.id.action_navigation_explore_to_userDetailFragment, args);
+        } catch (Exception e) {
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "Error al abrir el perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onFavoriteClick(User user, boolean isFavorite) {
-        // Manejar click en favorito
-        if (isFavorite) {
-            userViewModel.addFavorite(user.getUserId());
-        } else {
-            userViewModel.removeFavorite(user.getUserId());
+        try {
+            if (isFavorite) {
+                // Añadir a favoritos
+                userViewModel.addFavorite(user.getUserId()).observe(getViewLifecycleOwner(), success -> {
+                    if (success) {
+                        Toast.makeText(getContext(), "Usuario añadido a favoritos", Toast.LENGTH_SHORT).show();
+                        user.setFavorite(true);
+                        userAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "No se pudo añadir a favoritos", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                // Eliminar de favoritos
+                userViewModel.removeFavorite(user.getUserId()).observe(getViewLifecycleOwner(), success -> {
+                    if (success) {
+                        Toast.makeText(getContext(), "Usuario eliminado de favoritos", Toast.LENGTH_SHORT).show();
+                        user.setFavorite(false);
+                        userAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "No se pudo eliminar de favoritos", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
